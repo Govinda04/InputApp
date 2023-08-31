@@ -8,6 +8,7 @@
 import React, {useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  Alert,
   Button,
   FlatList,
   SafeAreaView,
@@ -32,6 +33,12 @@ const App = (): JSX.Element => {
   const [input1Data, setInput1Data] = useState<String[]>([]);
   const [input2Data, setInput2Data] = useState<String[]>([]);
 
+  const [inp1str, setInp1str] = useState('');
+  const [inp2str, setInp2str] = useState('');
+
+  const [in1Leng, setIn1Leng] = useState(0);
+  const [in2Leng, setIn2Leng] = useState(0);
+
   const [input1, setInput1] = useState('');
   const [input2, setInput2] = useState('');
 
@@ -42,16 +49,24 @@ const App = (): JSX.Element => {
   const _handleInput1 = event => {
     let newInput = event.nativeEvent.text;
     // console.log('---Text1: ', event.nativeEvent.text);
-
-    setInput1Data(data => [...data, newInput]);
+    if (in1Leng % 2 === 0) {
+      setInput1Data(data => [...data, newInput]);
+    }
+    setInp1str(`${inp1str} ${newInput}`);
     setInput1('');
+    setIn1Leng(in1Leng + 1);
   };
   const _handleInput2 = event => {
     let newInput = event.nativeEvent.text;
     // console.log('---Text1: ', event.nativeEvent.text);
+    if (in2Leng % 2 === 1) {
+      setInput2Data(data => [...data, newInput]);
+    }
 
-    setInput2Data(data => [...data, newInput]);
+    setInp2str(`${inp2str} ${newInput}`);
     setInput2('');
+
+    setIn2Leng(in2Leng + 1);
   };
 
   const displyInput1 = () => {
@@ -75,32 +90,47 @@ const App = (): JSX.Element => {
   };
 
   const calcOutput1 = (data1 = [], data2 = []) => {
-    let i, j;
+    let i, j, k;
     let arr = [];
 
     // 1 2 3 4
     // a b c d
 
     let maxlen = data1.length > data2.length ? data1.length : data2.length;
+    let lenDiff = data1.length - data2.length;
+    let minLength = lenDiff >= 0 ? data2.length : data1.length;
 
-    for (i = 0; i < maxlen; i++) {
-      // console.log('---i: ', i);
-      if (i % 2 === 0) {
-        // console.log('---in if');
-        if (i >= data1.length) {
-          break;
-        }
-        arr.push(<Text key={`op1- ${i}`}> {data1[i]}</Text>);
-      } else {
-        // console.log('---in else');
-        if (i >= data2.length) {
-          break;
-        }
-        arr.push(<Text> {data2[i]}</Text>);
-      }
+    // for (i = 0; i < maxlen; i++) {
+    //   // console.log('---i: ', i);
+    //   if (i % 2 === 0) {
+    //     // console.log('---in if');
+    //     if (i >= data1.length) {
+    //       break;
+    //     }
+    //     arr.push(<Text key={`op1- ${i}`}> {data1[i]}</Text>);
+    //   } else {
+    //     // console.log('---in else');
+    //     if (i >= data2.length) {
+    //       break;
+    //     }
+    //     arr.push(<Text> {data2[i]}</Text>);
+    //   }
+    // }
+
+    for (k = 0; k < minLength; k++) {
+      arr.push(<Text key={`op11-${k}`}> {data1[k]}</Text>);
+      arr.push(<Text key={`op12-${k}`}> {data2[k]}</Text>);
     }
 
-    console.log('---arr: ', arr);
+    if (lenDiff > 0) {
+      // Alert.alert(`${lenDiff} - ${k} - ${data1[k]}`);
+      arr.push(<Text key={`op11-${k}`}> {data1[k]}</Text>);
+    } else if (lenDiff === -1) {
+      // Alert.alert(`${lenDiff} - ${k} - ${data2[k]}`);
+      // arr.push(<Text key={`op12-${k}`}> {data2[k]}</Text>);
+    }
+
+    // console.log('---arr: ', arr);
     return arr;
   };
 
@@ -109,6 +139,10 @@ const App = (): JSX.Element => {
     setInput2Data([]);
     setInput1('');
     setInput2('');
+    setIn1Leng(0);
+    setIn2Leng(0);
+    setInp1str('');
+    setInp2str('');
   };
 
   return (
@@ -149,7 +183,8 @@ const App = (): JSX.Element => {
               paddingLeft: 10,
               flexDirection: 'row',
             }}>
-            {displyInput1()}
+            {/* {displyInput1()} */}
+            <Text>{inp1str}</Text>
           </View>
         </View>
 
@@ -177,7 +212,8 @@ const App = (): JSX.Element => {
               paddingLeft: 10,
               flexDirection: 'row',
             }}>
-            {displyInput2()}
+            {/* {displyInput2()} */}
+            <Text>{inp2str}</Text>
           </View>
         </View>
 
@@ -185,9 +221,6 @@ const App = (): JSX.Element => {
         <View style={{borderWidth: 1, minHeight: 100, flexDirection: 'row'}}>
           {calcOutput1(input1Data, input2Data)}
         </View>
-        {/* Output1 */}
-
-        <View style={{borderWidth: 1, minHeight: 100, marginTop: 10}}></View>
 
         <Button title="Reset" onPress={resetDate} />
       </View>
